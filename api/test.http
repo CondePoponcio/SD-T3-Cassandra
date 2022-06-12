@@ -1,0 +1,36 @@
+### Postman
+POST http://localhost:8000/create HTTP/1.1
+content-type: application/json
+
+{
+    "nombre": "Lucas", 
+    "apellido": "greetings",
+    "rut": "19650228-1",
+    "email": "fcondore@gmail.com",
+    "fecha_nacimiento": "1998-08-28",
+    "comentario": "Test Seba",
+    "farmacos": "Morfina",
+    "doctor": "Otro Seba"
+}
+
+### Postman
+POST http://localhost:8000/edit HTTP/1.1
+content-type: application/json
+
+{
+    "id": "41a91ba3-76c3-472f-93db-b5ffce398fc1",
+    "comentario": "Prueba de la api EDIT",
+    "farmacos": "Medicilin",
+    "doctor": "Mauricio"
+}
+
+### Postman
+POST http://localhost:8000/delete HTTP/1.1
+content-type: application/json
+
+{
+    "id": "41a91ba3-76c3-472f-93db-b5ffce398fc1",
+    "comentario": "Prueba de la api EDIT",
+    "farmacos": "Medicilin",
+    "doctor": "Mauricio"
+}

@@ -1,0 +1,110 @@
+version: "3.7"
+
+networks:
+    datacenter:
+        name: cb_network
+services:
+    data_base:
+        image: postgres:10.5
+        container_name: postgres
+        ports:
+            - "5432:5432"
+        environment:
+            - POSTGRES_DB=postgres
+            - POSTGRES_USER=myuser
+            - POSTGRES_PASSWORD=mypassword
+        networks:
+            - datacenter
+
+    flask-api:
+        container_name: api-rest
+        restart: always
+        build:
+            context: ./api/
+            dockerfile: Dockerfile
+        environment:
+            - POSTGRES_USER=myuser
+            - POSTGRES_PASSWORD=mypassword
+            - POSTGRES_DB=postgres
+            - POSTGRES_HOST=postgres
+            - POSTGRES_PORT=5432
+            - FLASK_ENV=development
+            - CASSANDRA_KEYSPACE=clinica
+            - CASSANDRA_IP_ADDRESS=datacenter
+        ports:
+            - "3000:3000"
+        volumes:
+            - ./api:/workspace
+        networks:
+            - datacenter
+        command: python3 src/app.py
+
+    cass1:
+        image: cassandra:3.11.8
+        container_name: cass1
+        hostname: cass1
+        mem_limit: 2g  # It's not strictly required, but it's better to have some memory limit
+        healthcheck:
+            test: ["CMD", "cqlsh", "-e", "describe keyspaces" ]
+            interval: 5s
+            timeout: 5s
+            retries: 60
+        networks:
+            - datacenter
+        ports:
+            - "9042:9042"  # Expose native binary CQL port for your apps
+        volumes:
+            - ./data/cass1:/var/lib/cassandra    # This is the volume that will persist data for cass1 node
+            #- ./etc/cass1:/etc/cassandra   # Use your own config files for full control
+        environment: &environment    # Declare and save environments variables into "environment"
+            CASSANDRA_START_RPC: true
+            CASSANDRA_SEEDS: "cass1,cass2"    # The first two nodes will be seeds
+            CASSANDRA_CLUSTER_NAME: MyCluster
+            CASSANDRA_DC: datacenter1
+            CASSANDRA_RACK: West
+            CASSANDRA_ENDPOINT_SNITCH: GossipingPropertyFileSnitch
+            CASSANDRA_NUM_TOKENS: 128
+    cass2:
+        image: cassandra:3.11.8
+        container_name: cass2
+        hostname: cass2
+        mem_limit: 2g
+        healthcheck:
+            test: ["CMD", "cqlsh", "-e", "describe keyspaces" ]
+            interval: 5s
+            timeout: 5s
+            retries: 60
+        networks:
+            - datacenter
+        ports:
+            - "9043:9042"  # Expose native binary CQL port for your apps
+        volumes:
+            - ./data/cass2:/var/lib/cassandra    # This is the volume that will persist data for cass2 node
+            #- ./etc/cass2:/etc/cassandra    # Use your own config files for full control
+        environment: *environment    # point to "environment" to use the same environment variables as cass1
+        depends_on:
+            cass1:    # start cass2 only after cass1 is healthy
+                condition: service_healthy
+    cass3:
+        image: cassandra:3.11.8
+        container_name: cass3
+        hostname: cass3
+        mem_limit: 2g
+        healthcheck:
+            test: ["CMD", "cqlsh", "-e", "describe keyspaces" ]
+            interval: 5s
+            timeout: 5s
+            retries: 60
+        networks:
+            - datacenter
+        ports:
+            - "9044:9042"  # Expose native binary CQL port for your apps
+        volumes:
+            - ./data/cass3:/var/lib/cassandra    # This is the volume that will persist data for cass3 node
+            #- ./etc/cass3:/etc/cassandra    # Use your own config files for full control
+        environment: *environment    # point to "environment" to use the same environment variables as cass1
+        depends_on:
+            cass2:    # start cass3 only after cass1 is healthy
+                condition: service_healthy #start # cass3 only after cass2
+
+
