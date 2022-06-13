@@ -110,7 +110,7 @@ def edit():
 
         session = connectCassandra('recetas_ks')
         session.execute(""" 
-            UPDATE recetas SET comentario = %s, farmacos = %s, doctor = %s WHERE id = %s
+            UPDATE recetas SET comentario = %s, farmacos = %s, doctor = %s WHERE id = %s IF EXISTS
         """, [comment, farmacos, doc, uuid.UUID(id)])
         
         return jsonify({"status: ": 'success'}) 
