@@ -183,7 +183,39 @@ def create():
         printLogs(ex_type, ex_value, ex_traceback)
         return jsonify({"error": "Exception type : %s %s" % (ex_type.__name__, ex_value)}), 500
     
+@app.route('/all', methods=['POST'])
+def getAll():
+    
+    try:
+        session = connectCassandra('paciente_ks')
         
+        session.row_factory = dict_factory
+        users = session.execute("select * from paciente")
+        
+        users_response = []
+        for user in list(users):
+            temp = dict(user)
+            temp["id"] = str(user["id"])
+            users_response.append(temp)
+        
+        session = connectCassandra('recetas_ks')
+        
+        session.row_factory = dict_factory
+        recetas = session.execute("select * from recetas")
+        
+        recetas_response = []
+        for item in list(recetas):
+            temp = dict(item)
+            temp["id"] = str(item["id"])
+            temp["id_paciente"] = str(item["id_paciente"])
+            recetas_response.append(temp)
+        
+        return jsonify({"pacientes: ": users_response, "recetas": recetas_response}) 
+    except Exception as e:
+        # Get current system exception
+        ex_type, ex_value, ex_traceback = sys.exc_info()
+        printLogs(ex_type, ex_value, ex_traceback)
+        return jsonify({"error": "Exception type : %s %s" % (ex_type.__name__, ex_value)}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=3000, debug=True, threaded=True)

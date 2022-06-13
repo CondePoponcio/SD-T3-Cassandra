@@ -4,17 +4,6 @@ networks:
     datacenter:
         name: cb_network
 services:
-    data_base:
-        image: postgres:10.5
-        container_name: postgres
-        ports:
-            - "5432:5432"
-        environment:
-            - POSTGRES_DB=postgres
-            - POSTGRES_USER=myuser
-            - POSTGRES_PASSWORD=mypassword
-        networks:
-            - datacenter
 
     flask-api:
         container_name: api-rest
@@ -30,14 +19,14 @@ services:
             - POSTGRES_PORT=5432
             - FLASK_ENV=development
             - CASSANDRA_KEYSPACE=clinica
-            - CASSANDRA_IP_ADDRESS=datacenter
+            - CASSANDRA_IP_ADDRESS=cass1
         ports:
             - "3000:3000"
         volumes:
             - ./api:/workspace
         networks:
             - datacenter
-        command: python3 src/app.py
+        command: python3 src/app.py #tail -f /dev/null
 
     cass1:
         image: cassandra:3.11.8
@@ -57,7 +46,7 @@ services:
             - ./data/cass1:/var/lib/cassandra    # This is the volume that will persist data for cass1 node
             #- ./etc/cass1:/etc/cassandra   # Use your own config files for full control
         environment: &environment    # Declare and save environments variables into "environment"
-            CASSANDRA_START_RPC: true
+            CASSANDRA_START_RPC: "true"
             CASSANDRA_SEEDS: "cass1,cass2"    # The first two nodes will be seeds
             CASSANDRA_CLUSTER_NAME: MyCluster
             CASSANDRA_DC: datacenter1
