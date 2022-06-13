@@ -29,7 +29,7 @@ session.execute("""
         rut text,
         email text,
         fecha_nacimiento text,
-        PRIMARY KEY ((nombre), id)
+        PRIMARY KEY ((nombre, apellido), id)
     )
 """)
 

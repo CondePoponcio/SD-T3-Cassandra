@@ -97,7 +97,7 @@ def create():
         'doctor')(payload)
 
         session.row_factory = dict_factory
-        users = session.execute("select * from paciente where nombre = %s", [nombre])
+        users = session.execute("select * from paciente where nombre = %s and apellido = %s", [nombre, apellido])
         
         response = []
         for user in list(users):
