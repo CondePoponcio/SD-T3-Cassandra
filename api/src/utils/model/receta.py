@@ -1,19 +1,6 @@
 import datetime as dt
 
-from marshmallow import Schema, fields, post_load
-
-
-class Receta(object):
-    def __init__(self, id, comentario, doctor, farmacos, id_paciente):
-        self.id = id
-        self.comentario = comentario
-        self.doctor = doctor
-        self.farmacos = farmacos
-        self.id_paciente = id_paciente
-
-    def __repr__(self):
-        return '<Receta(name={self.id!r})>'.format(self=self)
-
+from marshmallow import Schema, fields
 
 class RecetaSchema(Schema):
     id = fields.UUID(required=True)

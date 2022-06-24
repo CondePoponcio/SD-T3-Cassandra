@@ -1,36 +1,38 @@
 import os
 import sys
-import traceback
-import json
 import uuid
 
 from flask import Flask, jsonify, request
 from flask_json_schema import JsonSchema, JsonValidationError
 
 from cassandra.cluster import Cluster
-from cassandra.query import ordered_dict_factory, dict_factory
+from cassandra.query import dict_factory
 
 from operator import itemgetter
-from marshmallow import Schema, fields, post_load
 
 from utils.ErrorMessage import printLogs
-from utils.model.receta import Receta, RecetaSchema
-from utils.model.paciente import Paciente, PacienteSchema
+from utils.model.receta import RecetaSchema
+from utils.model.paciente import PacienteSchema
+from create_table import create_table
 
 
 app = Flask(__name__)
 schema = JsonSchema(app)
+with app.app_context():
+    try:
+        create_table()
+    except Exception as e:
+        print("Trying to reconnect to Cassandra, waiting for nodes to be up...")
+        sys.exit(1)
 
 def connectCassandra(keyspace):
     cluster = Cluster(contact_points=[ os.environ["CASSANDRA_IP_ADDRESS"] ], port=9042)
     session = cluster.connect(keyspace)
     return session
 
-
 @app.errorhandler(JsonValidationError)
 def validation_error(e):
     return jsonify({ 'error': e.message, 'errors': [validation_error.message for validation_error  in e.errors]}), 400
-
 
 @app.route('/delete', methods=['POST'])
 def delete():
@@ -44,7 +46,7 @@ def delete():
         session = connectCassandra('recetas_ks')
         session.execute("DELETE FROM recetas WHERE id = %s", [id])
         
-        return jsonify({"status: ": 'success'}) 
+        return jsonify({"status": 'success'}) 
     except Exception as e:
         # Get current system exception
         ex_type, ex_value, ex_traceback = sys.exc_info()
