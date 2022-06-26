@@ -134,9 +134,8 @@ A continuación, se muestra una imagen de una arquitectura que incluye _Sharding
 <div align="center">
 <image src=/img/Sharding.drawio.png>
  </div>
-* **¿Qué mejoras implementaría?**
+Donde cada shard es una partición de datos, puede ser una table en específico o incluso una tabla compuesta por varias tablas.
+
+* **¿Qué mejoras implementaría?** Este sistema de _Sharding_ es una buena opción, considerando que la escala de datos será masiva. Imaginando un escenario en donde existen múltiples clínicas, clientes y recetas. Adicionalmente se debe generar un clúster que realice la configuración de los shards, almacenando sus rutas y aplicando políticas preferenciales que permitan aproximar la carga de los shards.
 
 
-
-## ℹ Información Importante
-El uso de las imágenes de [Bitnami](https://hub.docker.com/u/bitnami) fueron reemplazadas por [wurstmeister](https://hub.docker.com/u/wurstmeister) por el simple hecho de que la utilización de [AIOKafka](https://github.com/aio-libs/aiokafka) no permitía establecer una conexión con el contenedor de Kafka. Esta librería de Python permite utilizar Kafka de manera asincrónica, exactamente lo que se requería para combinar Flask con un KafkaProducer. Para el api de bloqueo se usó un KafkaProducer asíncrono basado en la contribución de trabajo de [NimzyMaina](https://github.com/NimzyMaina/flask_kafka).
