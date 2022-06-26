@@ -161,4 +161,4 @@ A continuación, se muestra una imagen de una arquitectura que incluye _Sharding
 
 Donde cada shard es una partición de datos, puede ser una table en específico o incluso una tabla compuesta por varias tablas. En este caso puede ser un shard para pacientes y el resto para recetas.
 
-- **¿Qué mejoras implementaría?** Este sistema de _Sharding_ es una buena opción, considerando que la escala de datos será masiva. Imaginando un escenario en donde existen múltiples clínicas, clientes y recetas. Adicionalmente se debe generar un clúster que realice la configuración de los shards, almacenando rutas y aplicación de políticas preferenciales que permitan aproximar la carga de los shards.
+- **¿Qué mejoras implementaría?** El sistema de _Sharding_ es una excelente opción si se considera que la escala de datos será masiva. Escenario en donde existen múltiples clínicas, clientes y recetas. Adicionalmente se debe generar un clúster que realice la configuración de los shards, almacenando rutas y aplicación de políticas preferenciales que permitan aproximar la carga de los shards. En la figura anterior es el balanceador de cargas, pero puede ser otro componente.
